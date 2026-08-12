@@ -420,7 +420,7 @@
         }
       });
 
-      // Auto-click Skip / Next button (overriding Spotify disabled attribute)
+      // Auto-click Skip / Next button by invoking React internal handlers & keyboard shortcuts
       if (isAdPlaying) {
         const nextBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
                         document.querySelector('[aria-label="Next"]') ||
@@ -429,14 +429,33 @@
                         document.querySelector('button[aria-label*="Skip" i]') ||
                         document.querySelector('.spoticon-skip-forward-16');
         if (nextBtn) {
+          // Direct React internal onClick handler invocation (bypasses React disabled state lock)
+          try {
+            const reactKey = Object.keys(nextBtn).find(k => k.startsWith('__reactProps') || k.startsWith('__reactEventHandlers'));
+            if (reactKey && nextBtn[reactKey] && typeof nextBtn[reactKey].onClick === 'function') {
+              nextBtn[reactKey].onClick({ preventDefault: () => {}, stopPropagation: () => {} });
+            }
+          } catch (e) {}
+
+          // DOM click fallback
           nextBtn.disabled = false;
           nextBtn.removeAttribute('disabled');
           nextBtn.removeAttribute('aria-disabled');
           nextBtn.click();
-          nextBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }
+
+        // Keyboard shortcut fallback (Shift + Right Arrow)
+        try {
+          document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'ArrowRight',
+            code: 'ArrowRight',
+            keyCode: 39,
+            shiftKey: true,
+            bubbles: true
+          }));
+        } catch (e) {}
       }
-    }, 250);
+    }, 200);
   }
 
   // -------------------------------------------------------------
