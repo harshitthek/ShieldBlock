@@ -348,16 +348,23 @@
     setInterval(() => {
       if (document.hidden) return; // Zero RAM & CPU usage when tab is in background
 
-      // Robust Spotify Web ad detection (regex text search on player widget, footer, and sidebar)
-      const footer = document.querySelector('footer') || document.querySelector('[data-testid="now-playing-widget"]') || document.querySelector('.now-playing-bar');
-      const footerText = footer ? footer.innerText || '' : '';
+      // Search all player containers on Spotify Web Player & Mobile Web Player
+      const nowPlaying = document.querySelector('[data-testid="now-playing-widget"]') ||
+                         document.querySelector('.now-playing-bar') ||
+                         document.querySelector('.Root__now-playing-bar') ||
+                         document.querySelector('footer') ||
+                         document.body;
+
+      const playerText = nowPlaying ? nowPlaying.innerText || '' : '';
       const sidebar = document.querySelector('aside') || document.querySelector('[aria-label="Now playing view"]');
       const sidebarText = sidebar ? sidebar.innerText || '' : '';
 
-      const isAdPlaying = /advertisement|your music will continue/i.test(footerText) ||
+      const isAdPlaying = /advertisement|your music will continue/i.test(playerText) ||
                           /advertisement|your music will continue/i.test(sidebarText) ||
-                          document.querySelector('[data-testid="ad-link"]') ||
+                          document.querySelector('[data-testid="ad-title"]') ||
+                          document.querySelector('[data-testid="ad-badge"]') ||
                           document.querySelector('[aria-label*="Advertisement" i]') ||
+                          document.querySelector('[data-testid="ad-link"]') ||
                           document.querySelector('.sponsor-container') ||
                           document.querySelector('a[href*="spotify.com/ad"]');
 
@@ -390,9 +397,9 @@
           media.dataset.shieldblockAd = 'true';
           media.muted = true;
           media.playbackRate = 16.0; // Fast-forward 2-min ad in ~100ms
-          if (isFinite(media.duration) && media.duration > 0 && media.currentTime < media.duration - 0.3) {
-            media.currentTime = media.duration - 0.1; // Jump straight to end
-          }
+          try {
+            media.currentTime = 999999; // Jump to end of ad stream regardless of Infinity/NaN duration
+          } catch (e) {}
         } else {
           if (media.dataset.shieldblockAd === 'true') {
             media.dataset.shieldblockAd = 'false';
@@ -402,16 +409,18 @@
         }
       });
 
-      // Auto-click Skip button if Spotify presents one
+      // Auto-click Skip / Next button if Spotify presents one
       if (isAdPlaying) {
-        const skipBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
-                        document.querySelector('button[aria-label="Skip"]') ||
+        const nextBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
+                        document.querySelector('[aria-label="Next"]') ||
+                        document.querySelector('[aria-label="Skip"]') ||
+                        document.querySelector('button[aria-label*="Next" i]') ||
                         document.querySelector('button[aria-label*="Skip" i]');
-        if (skipBtn) {
-          skipBtn.click();
+        if (nextBtn) {
+          nextBtn.click();
         }
       }
-    }, 300);
+    }, 250);
   }
 
   // -------------------------------------------------------------
