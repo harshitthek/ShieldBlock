@@ -396,9 +396,15 @@
         if (isAdPlaying) {
           media.dataset.shieldblockAd = 'true';
           media.muted = true;
-          media.playbackRate = 16.0; // Fast-forward 2-min ad in ~100ms
           try {
-            media.currentTime = 999999; // Jump to end of ad stream regardless of Infinity/NaN duration
+            media.playbackRate = 16.0;
+          } catch (e) {}
+          try {
+            if (media.duration && isFinite(media.duration) && media.duration > 0) {
+              media.currentTime = media.duration - 0.1;
+            } else {
+              media.currentTime = 999999;
+            }
           } catch (e) {}
         } else {
           if (media.dataset.shieldblockAd === 'true') {
@@ -409,15 +415,20 @@
         }
       });
 
-      // Auto-click Skip / Next button if Spotify presents one
+      // Auto-click Skip / Next button (overriding Spotify disabled attribute)
       if (isAdPlaying) {
         const nextBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
                         document.querySelector('[aria-label="Next"]') ||
                         document.querySelector('[aria-label="Skip"]') ||
                         document.querySelector('button[aria-label*="Next" i]') ||
-                        document.querySelector('button[aria-label*="Skip" i]');
+                        document.querySelector('button[aria-label*="Skip" i]') ||
+                        document.querySelector('.spoticon-skip-forward-16');
         if (nextBtn) {
+          nextBtn.disabled = false;
+          nextBtn.removeAttribute('disabled');
+          nextBtn.removeAttribute('aria-disabled');
           nextBtn.click();
+          nextBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }
       }
     }, 250);
