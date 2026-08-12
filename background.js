@@ -132,7 +132,7 @@ async function syncDynamicRules() {
       action: { type: 'allowAllRequests' },
       condition: {
         urlFilter: '*',
-        resourceTypes: ['main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'xmlhttprequest', 'ping', 'other']
+        resourceTypes: ['main_frame', 'sub_frame']
       }
     });
   } else {
@@ -145,7 +145,7 @@ async function syncDynamicRules() {
           action: { type: 'allowAllRequests' },
           condition: {
             requestDomains: [domain],
-            resourceTypes: ['main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'xmlhttprequest', 'ping', 'other']
+            resourceTypes: ['main_frame', 'sub_frame']
           }
         });
       }
