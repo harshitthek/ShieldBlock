@@ -324,10 +324,51 @@
     }
   });
 
-  // Start extension cosmetic engine
+  // -------------------------------------------------------------
+  // SPOTIFY WEB PLAYER AUDIO AD ACCELERATION & MUTER ENGINE
+  // -------------------------------------------------------------
+  function initSpotifyAdSkipper() {
+    if (!window.location.hostname.includes('spotify.com')) return;
+
+    console.log('[ShieldBlock] Spotify Web Player ad acceleration engine active');
+
+    setInterval(() => {
+      // Check for Spotify Web ad indicators in DOM
+      const isAd = document.querySelector('[data-testid="now-playing-widget"][aria-label*="Advertisement"]') ||
+                   document.querySelector('[aria-label="Advertisement"]') ||
+                   document.querySelector('[data-testid="ad-link"]') ||
+                   document.querySelector('.sponsor-container') ||
+                   document.querySelector('a[href*="spotify.com/ad"]');
+
+      const mediaElements = document.querySelectorAll('audio, video');
+
+      mediaElements.forEach((media) => {
+        if (isAd || media.src.includes('audio-fa') || media.src.includes('/ad/')) {
+          media.muted = true;
+          media.playbackRate = 16.0; // Fast-forward 2-min ad in ~2 seconds
+          if (isFinite(media.duration) && media.duration > 0 && media.currentTime < media.duration - 0.5) {
+            media.currentTime = media.duration - 0.1; // Jump straight to end
+          }
+        }
+      });
+
+      // Auto-click Skip button if Spotify presents one
+      const skipBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
+                      document.querySelector('button[aria-label="Skip"]');
+      if (isAd && skipBtn) {
+        skipBtn.click();
+      }
+    }, 400);
+  }
+
+  // Start extension engines
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCosmeticFilter);
+    document.addEventListener('DOMContentLoaded', () => {
+      initCosmeticFilter();
+      initSpotifyAdSkipper();
+    });
   } else {
     initCosmeticFilter();
+    initSpotifyAdSkipper();
   }
 })();

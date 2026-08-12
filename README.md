@@ -32,6 +32,7 @@ Beyond network blocking, ShieldBlock features an advanced **Cosmetic Filtering E
 | **📊 Real-time Network Logger** | Live streaming view of blocked requests, resource types, and rule IDs in a separate dashboard. |
 | **🌐 Remote Filter Subscriptions** | Subscribe to remote JSON filter lists with automatic rule namespace isolation (`ID >= 1,000,000`). |
 | **🔓 Anti-AdBlock Overlay Cleaner** | Detects and removes anti-adblock modal traps and restores page scrolling automatically. |
+| **🎵 Spotify Ad Acceleration** | Detects Spotify Web Player audio ads, mutes playback, accelerates to 16.0x speed, and auto-skips in 1-2s. |
 | **🎨 Glassmorphic Dashboard** | Sleek UI with global toggle, stats counters, domain allowlist editor, and JSON configuration backup. |
 | **🔐 Zero-innerHTML Security** | Built 100% with strict DOM node creation (`createElement` / `textContent`) to eliminate XSS vectors. |
 
