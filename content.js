@@ -24,8 +24,7 @@
     'iframe[src*="taboola.com"]',
     'iframe[src*="outbrain.com"]',
     '[data-testid="ad-link"]',
-    '.main-leaderboard-ad',
-    '[aria-label="Advertisement"]'
+    '.main-leaderboard-ad'
   ];
 
   let blockedCountOnPage = 0;
@@ -398,20 +397,24 @@
         if (isAdPlaying) {
           media.dataset.shieldblockAd = 'true';
           media.muted = true;
+          media.volume = 0;
           try {
             media.playbackRate = 16.0;
           } catch (e) {}
           try {
             if (media.duration && isFinite(media.duration) && media.duration > 0) {
               media.currentTime = media.duration - 0.1;
-            } else {
-              media.currentTime = 999999;
             }
+          } catch (e) {}
+          try {
+            // Dispatch synthetic ended event to force Spotify JS to advance to next track
+            media.dispatchEvent(new Event('ended', { bubbles: true }));
           } catch (e) {}
         } else {
           if (media.dataset.shieldblockAd === 'true') {
             media.dataset.shieldblockAd = 'false';
             media.muted = false;
+            media.volume = 1.0;
             media.playbackRate = 1.0;
           }
         }
