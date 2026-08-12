@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShieldBlock - Dashboard & Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h2>ShieldBlock</h2>
+          <span>Dashboard v1.0</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="overview">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" data-tab="filter-lists">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Filter Lists
+        </button>
+        <button class="nav-item" data-tab="allowlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          Allowlist
+        </button>
+        <button class="nav-item" data-tab="custom-rules">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Custom Rules
+        </button>
+        <button class="nav-item" data-tab="subscriptions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Subscriptions
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-indicator">
+          <span class="dot"></span> Engine Online
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Panels -->
+    <main class="content-area">
+      <!-- TAB 1: OVERVIEW -->
+      <section class="tab-panel active" id="tab-overview">
+        <header class="panel-header">
+          <div>
+            <h1>Protection Overview</h1>
+            <p>Real-time analytics and web browsing optimization metrics.</p>
+          </div>
+          <button id="reset-stats-btn" class="btn btn-secondary">Reset Statistics</button>
+        </header>
+
+        <!-- Metric Cards -->
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value" id="dash-total-blocked">0</span>
+              <span class="metric-title">Total Ads & Trackers Blocked</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value" id="dash-trackers-blocked">0</span>
+              <span class="metric-title">Tracking Pixels Neutralized</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value" id="dash-data-saved">0 MB</span>
+              <span class="metric-title">Estimated Bandwidth Saved</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protection Summary Card -->
+        <div class="card">
+          <h3>Active Filter Modules</h3>
+          <div class="module-status-grid">
+            <div class="module-item">
+              <div class="module-info">
+                <strong>Declarative Ads Ruleset</strong>
+                <span>Blocks ad servers, doubleclick, banners & video ads</span>
+              </div>
+              <span class="badge badge-success">Active (25 Rules)</span>
+            </div>
+
+            <div class="module-item">
+              <div class="module-info">
+                <strong>Telemetry & Trackers Ruleset</strong>
+                <span>Blocks Google Analytics, Facebook Pixel, fingerprinting</span>
+              </div>
+              <span class="badge badge-success">Active (15 Rules)</span>
+            </div>
+
+            <div class="module-item">
+              <div class="module-info">
+                <strong>Annoyances & Anti-Adblock Cleaner</strong>
+                <span>Cleans popups, overlay locks & notification traps</span>
+              </div>
+              <span class="badge badge-success">Active (7 Rules)</span>
+            </div>
+
+            <div class="module-item">
+              <div class="module-info">
+                <strong>Cosmetic Dynamic DOM Hider</strong>
+                <span>Element hiding engine + Interactive Element Picker</span>
+              </div>
+              <span class="badge badge-success">Active</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: FILTER LISTS -->
+      <section class="tab-panel" id="tab-filter-lists">
+        <header class="panel-header">
+          <div>
+            <h1>Filter Lists</h1>
+            <p>Customize network blocking categories and protection levels.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="list-toggle-item">
+            <div class="list-toggle-info">
+              <h3>General Ad Blockers</h3>
+              <p>Blocks banner ads, popups, inline media ads, and sponsored posts across all sites.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-list-ads" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="list-toggle-item">
+            <div class="list-toggle-info">
+              <h3>Privacy & Tracker Protection</h3>
+              <p>Blocks tracking pixels, analytics scripts, telemetry collectors, and behavioral metrics.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-list-trackers" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="list-toggle-item">
+            <div class="list-toggle-info">
+              <h3>Annoyances & Cookie Banners</h3>
+              <p>Blocks intrusive cookie consent popups, overlay locks, and anti-adblock modals.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-list-annoyances" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: ALLOWLIST -->
+      <section class="tab-panel" id="tab-allowlist">
+        <header class="panel-header">
+          <div>
+            <h1>Domain Allowlist</h1>
+            <p>Protection will be paused on these websites.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="add-allowlist-form">
+            <input type="text" id="allowlist-input" placeholder="e.g. example.com" class="input-text">
+            <button id="add-allowlist-btn" class="btn btn-primary">Add Domain</button>
+          </div>
+
+          <div class="allowlist-header">
+            <h3>Whitelisted Domains (<span id="allowlist-count">0</span>)</h3>
+            <button id="clear-allowlist-btn" class="btn btn-danger-sm">Clear All</button>
+          </div>
+
+          <ul class="domain-list" id="domain-list-container">
+            <!-- Dynamic Allowlist items will be rendered here -->
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 4: CUSTOM RULES -->
+      <section class="tab-panel" id="tab-custom-rules">
+        <header class="panel-header">
+          <div>
+            <h1>Custom Blocking Rules</h1>
+            <p>Manage element picker selections and user-defined CSS selectors.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <h3>Domain Element Hiding Rules</h3>
+          <div class="custom-rules-container" id="custom-rules-container">
+            <!-- Custom CSS rules rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SETTINGS -->
+      <section class="tab-panel" id="tab-settings">
+        <header class="panel-header">
+          <div>
+            <h1>Settings & Preferences</h1>
+            <p>Configure extension behavior, interface preferences, and backups.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="setting-item">
+            <div>
+              <h3>Display Badge Counter</h3>
+              <p>Show real-time blocked item count on the extension icon in Chrome toolbar.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-badge" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <h3>Backup & Restore Configuration</h3>
+              <p>Export your settings, allowlist, and custom rules or import from a backup JSON file.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="export-config-btn" class="btn btn-secondary">Export JSON</button>
+              <button id="import-config-btn" class="btn btn-primary">Import JSON</button>
+              <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: SUBSCRIPTIONS -->
+      <section class="tab-panel" id="tab-subscriptions">
+        <header class="panel-header">
+          <div>
+            <h1>Filter Subscriptions</h1>
+            <p>Subscribe to remote DNR JSON rulesets via URL to keep your filters auto-updated.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="allowlist-add-box">
+            <input type="text" id="sub-input" placeholder="Enter remote JSON filter URL (e.g. https://example.com/rules.json)" />
+            <button id="add-sub-btn" class="btn btn-primary">Subscribe List</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Active Remote Subscriptions</h3>
+          <ul class="domain-list" id="sub-list-container" style="margin-top: 12px;">
+            <!-- Rendered sub list -->
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
