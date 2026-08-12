@@ -361,14 +361,63 @@
     }, 400);
   }
 
+  // -------------------------------------------------------------
+  // YOUTUBE VIDEO AD ACCELERATION & AUTO-SKIPPER ENGINE
+  // -------------------------------------------------------------
+  function initYouTubeAdSkipper() {
+    if (!window.location.hostname.includes('youtube.com')) return;
+
+    console.log('[ShieldBlock] YouTube video ad acceleration engine active');
+
+    setInterval(() => {
+      // YouTube Video Ad Indicators
+      const player = document.querySelector('.html5-video-player');
+      const isAdShowing = player && (
+        player.classList.contains('ad-showing') ||
+        player.classList.contains('ad-interrupting') ||
+        document.querySelector('.ytp-ad-module') ||
+        document.querySelector('.ytp-ad-player-overlay')
+      );
+
+      const video = document.querySelector('video.html5-main-video') || document.querySelector('video');
+
+      if (video && isAdShowing) {
+        video.muted = true;
+        video.playbackRate = 16.0; // Fast-forward video ad at 16x speed
+        if (isFinite(video.duration) && video.duration > 0 && video.currentTime < video.duration - 0.2) {
+          video.currentTime = video.duration - 0.1; // Jump straight to end
+        }
+      }
+
+      // Auto-click YouTube Skip Ad buttons (Modern & Classic)
+      const skipButtons = [
+        '.ytp-ad-skip-button',
+        '.ytp-ad-skip-button-modern',
+        '.ytp-skip-ad-button',
+        'button.ytp-ad-skip-button-container',
+        '.ytp-ad-overlay-close-button'
+      ];
+
+      for (const sel of skipButtons) {
+        const btn = document.querySelector(sel);
+        if (btn) {
+          btn.click();
+          break;
+        }
+      }
+    }, 300);
+  }
+
   // Start extension engines
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initCosmeticFilter();
       initSpotifyAdSkipper();
+      initYouTubeAdSkipper();
     });
   } else {
     initCosmeticFilter();
     initSpotifyAdSkipper();
+    initYouTubeAdSkipper();
   }
 })();
