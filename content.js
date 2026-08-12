@@ -69,6 +69,16 @@
           observer.observe(document.body, { childList: true, subtree: true });
         });
       }
+
+      // Page Visibility Power Saver: Disconnect observer when tab is hidden to free RAM & CPU
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          observer.disconnect();
+        } else if (document.body) {
+          cleanAdElements();
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+      });
     } catch (e) {
       console.warn('[ShieldBlock] Error initializing cosmetic filter:', e);
     }
@@ -333,6 +343,8 @@
     console.log('[ShieldBlock] Spotify Web Player ad acceleration engine active');
 
     setInterval(() => {
+      if (document.hidden) return; // Zero RAM & CPU usage when tab is in background
+
       // Check for Spotify Web ad indicators in DOM
       const isAd = document.querySelector('[data-testid="now-playing-widget"][aria-label*="Advertisement"]') ||
                    document.querySelector('[aria-label="Advertisement"]') ||
@@ -370,6 +382,9 @@
     console.log('[ShieldBlock] YouTube video ad acceleration engine active');
 
     setInterval(() => {
+      // Skip background tabs to save RAM & CPU
+      if (document.hidden && !document.querySelector('.html5-video-player.ad-showing')) return;
+
       // YouTube Video Ad Indicators
       const player = document.querySelector('.html5-video-player');
       const isAdShowing = player && (
