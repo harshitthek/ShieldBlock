@@ -1,0 +1,65 @@
+[
+  {
+    "id": 201,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||popunder.net^",
+      "resourceTypes": ["script", "sub_frame", "main_frame"]
+    }
+  },
+  {
+    "id": 202,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||popads.net^",
+      "resourceTypes": ["script", "sub_frame", "main_frame"]
+    }
+  },
+  {
+    "id": 203,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||onesignal.com/sdks/*",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 204,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||pushowl.com^",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 205,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||admiral.com^",
+      "resourceTypes": ["script", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 206,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||blockadblock.com^",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 207,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||fuckadblock.js",
+      "resourceTypes": ["script"]
+    }
+  }
+]

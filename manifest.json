@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "ShieldBlock - Ad & Tracker Blocker",
+  "version": "1.0.0",
+  "description": "High-performance ad blocker, privacy defender, anti-tracking, cosmetic element cleaner, and popup shield.",
+  "permissions": [
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ShieldBlock",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "rules_ads",
+        "enabled": true,
+        "path": "rules/rules_ads.json"
+      },
+      {
+        "id": "rules_trackers",
+        "enabled": true,
+        "path": "rules/rules_trackers.json"
+      },
+      {
+        "id": "rules_annoyances",
+        "enabled": true,
+        "path": "rules/rules_annoyances.json"
+      }
+    ]
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
