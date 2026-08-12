@@ -133,6 +133,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Load and handle Mini Control Dashboard Category Toggles
+  const filterAdsEl = document.getElementById('toggle-filter-ads');
+  const filterTrackersEl = document.getElementById('toggle-filter-trackers');
+  const filterAnnoyancesEl = document.getElementById('toggle-filter-annoyances');
+
+  const { filterLists = { ads: true, trackers: true, annoyances: true } } = await chrome.storage.local.get('filterLists');
+  if (filterAdsEl) filterAdsEl.checked = filterLists.ads !== false;
+  if (filterTrackersEl) filterTrackersEl.checked = filterLists.trackers !== false;
+  if (filterAnnoyancesEl) filterAnnoyancesEl.checked = filterLists.annoyances !== false;
+
+  [
+    { el: filterAdsEl, key: 'ads' },
+    { el: filterTrackersEl, key: 'trackers' },
+    { el: filterAnnoyancesEl, key: 'annoyances' }
+  ].forEach(({ el, key }) => {
+    if (!el) return;
+    el.addEventListener('change', async () => {
+      const { filterLists = { ads: true, trackers: true, annoyances: true } } = await chrome.storage.local.get('filterLists');
+      filterLists[key] = el.checked;
+      await chrome.storage.local.set({ filterLists });
+      
+      const rulesetId = `rules_${key}`;
+      if (el.checked) {
+        await chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: [rulesetId] });
+      } else {
+        await chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: [rulesetId] });
+      }
+    });
+  });
+
   // Initial load
   await loadPopupState();
 });
