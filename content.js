@@ -348,25 +348,27 @@
     setInterval(() => {
       if (document.hidden) return; // Zero RAM & CPU usage when tab is in background
 
-      // Search all player containers on Spotify Web Player & Mobile Web Player
+      // Search Spotify player widgets
       const nowPlaying = document.querySelector('[data-testid="now-playing-widget"]') ||
                          document.querySelector('.now-playing-bar') ||
                          document.querySelector('.Root__now-playing-bar') ||
-                         document.querySelector('footer') ||
-                         document.body;
+                         document.querySelector('[data-testid="track-info"]') ||
+                         document.querySelector('footer');
 
       const playerText = nowPlaying ? nowPlaying.innerText || '' : '';
       const sidebar = document.querySelector('aside') || document.querySelector('[aria-label="Now playing view"]');
       const sidebarText = sidebar ? sidebar.innerText || '' : '';
 
-      const isAdPlaying = /advertisement|your music will continue/i.test(playerText) ||
-                          /advertisement|your music will continue/i.test(sidebarText) ||
-                          document.querySelector('[data-testid="ad-title"]') ||
-                          document.querySelector('[data-testid="ad-badge"]') ||
-                          document.querySelector('[aria-label*="Advertisement" i]') ||
-                          document.querySelector('[data-testid="ad-link"]') ||
-                          document.querySelector('.sponsor-container') ||
-                          document.querySelector('a[href*="spotify.com/ad"]');
+      const isAdPlaying = Boolean(
+        (playerText && /advertisement|your music will continue/i.test(playerText)) ||
+        (sidebarText && /advertisement|your music will continue/i.test(sidebarText)) ||
+        document.querySelector('[data-testid="ad-title"]') ||
+        document.querySelector('[data-testid="ad-badge"]') ||
+        document.querySelector('[aria-label*="Advertisement" i]') ||
+        document.querySelector('[data-testid="ad-link"]') ||
+        document.querySelector('.sponsor-container') ||
+        document.querySelector('a[href*="spotify.com/ad"]')
+      );
 
       // Hide sidebar ad card visual container if ad is playing
       if (sidebar && /advertisement|your music will continue/i.test(sidebarText)) {
