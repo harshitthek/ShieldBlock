@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Handle Global Power Switch Click
   powerBtnEl.addEventListener('click', async () => {
     try {
-      const response = await chrome.runtime.sendMessage({ action: 'TOGGLE_GLOBAL' });
+      const response = await chrome.runtime.sendMessage({ action: 'TOGGLE_GLOBAL' }).catch(() => null);
       if (response) {
         loadPopupState();
       }
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const response = await chrome.runtime.sendMessage({
       action: 'TOGGLE_WHITELIST',
       domain: currentDomain
-    });
+    }).catch(() => null);
     if (response) {
       loadPopupState();
     }
@@ -105,14 +105,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Handle Element Picker Click
   pickerBtnEl.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ action: 'START_ELEMENT_PICKER', mode: 'permanent' });
+    await chrome.runtime.sendMessage({ action: 'START_ELEMENT_PICKER', mode: 'permanent' }).catch(() => {});
     window.close(); // Close popup window so user can interact with web page
   });
 
   // Handle Element Zapper Click
   if (zapperBtnEl) {
     zapperBtnEl.addEventListener('click', async () => {
-      await chrome.runtime.sendMessage({ action: 'START_ELEMENT_PICKER', mode: 'zap' });
+      await chrome.runtime.sendMessage({ action: 'START_ELEMENT_PICKER', mode: 'zap' }).catch(() => {});
       window.close();
     });
   }

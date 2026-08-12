@@ -334,7 +334,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           await chrome.tabs.sendMessage(tabs[0].id, {
             action: 'ACTIVATE_ELEMENT_PICKER',
             mode: request.mode || 'permanent'
-          });
+          }).catch(() => {});
         }
         return { success: true };
       }
@@ -419,7 +419,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Immediately send selector to content script of current tab & inject via scripting API (CSP bypass)
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tabs[0]) {
-          await chrome.tabs.sendMessage(tabs[0].id, { action: 'APPLY_CUSTOM_CSS', selector });
+          await chrome.tabs.sendMessage(tabs[0].id, { action: 'APPLY_CUSTOM_CSS', selector }).catch(() => {});
           try {
             chrome.scripting.insertCSS({
               target: { tabId: tabs[0].id },
