@@ -347,20 +347,13 @@
     setInterval(() => {
       if (document.hidden) return; // Zero RAM & CPU usage when tab is in background
 
-      // Search Spotify player widgets
-      const nowPlaying = document.querySelector('[data-testid="now-playing-widget"]') ||
-                         document.querySelector('.now-playing-bar') ||
-                         document.querySelector('.Root__now-playing-bar') ||
-                         document.querySelector('[data-testid="track-info"]') ||
-                         document.querySelector('footer');
-
-      const playerText = nowPlaying ? nowPlaying.innerText || '' : '';
+      // Universal Spotify Web ad detector (matches 'Advertisement • 1 of 2', 'Your music will continue after', etc.)
+      const bodyText = document.body ? document.body.innerText || '' : '';
       const sidebar = document.querySelector('aside') || document.querySelector('[aria-label="Now playing view"]');
       const sidebarText = sidebar ? sidebar.innerText || '' : '';
 
       const isAdPlaying = Boolean(
-        (playerText && /advertisement|your music will continue/i.test(playerText)) ||
-        (sidebarText && /advertisement|your music will continue/i.test(sidebarText)) ||
+        /advertisement •|advertisement \d|your music will continue after/i.test(bodyText) ||
         document.querySelector('[data-testid="ad-title"]') ||
         document.querySelector('[data-testid="ad-badge"]') ||
         document.querySelector('[aria-label*="Advertisement" i]') ||
@@ -376,7 +369,16 @@
         sidebar.style.removeProperty('display');
       }
 
-      const mediaElements = document.querySelectorAll('audio, video');
+      // Collect audio/video elements across document and accessible iframes
+      let mediaElements = Array.from(document.querySelectorAll('audio, video'));
+      document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+          if (iframe.contentDocument) {
+            const innerMedia = iframe.contentDocument.querySelectorAll('audio, video');
+            mediaElements = mediaElements.concat(Array.from(innerMedia));
+          }
+        } catch (e) {}
+      });
 
       mediaElements.forEach((media) => {
         // Event listener enforcement so Spotify JS cannot un-mute or slow down playback during ads
@@ -390,6 +392,7 @@
           media.addEventListener('volumechange', () => {
             if (media.dataset.shieldblockAd === 'true' && !media.muted) {
               media.muted = true;
+              media.volume = 0;
             }
           });
         }
@@ -404,6 +407,8 @@
           try {
             if (media.duration && isFinite(media.duration) && media.duration > 0) {
               media.currentTime = media.duration - 0.1;
+            } else {
+              media.currentTime = 999999;
             }
           } catch (e) {}
           try {
@@ -444,15 +449,10 @@
           nextBtn.click();
         }
 
-        // Keyboard shortcut fallback (Shift + Right Arrow)
+        // Keyboard shortcut fallbacks (Shift + ArrowRight AND Alt + Shift + ArrowRight)
         try {
-          document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'ArrowRight',
-            code: 'ArrowRight',
-            keyCode: 39,
-            shiftKey: true,
-            bubbles: true
-          }));
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, shiftKey: true, bubbles: true }));
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, shiftKey: true, altKey: true, bubbles: true }));
         } catch (e) {}
       }
     }, 200);
