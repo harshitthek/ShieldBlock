@@ -22,7 +22,10 @@
     'iframe[src*="googlesyndication.com"]',
     'iframe[src*="amazon-adsystem.com"]',
     'iframe[src*="taboola.com"]',
-    'iframe[src*="outbrain.com"]'
+    'iframe[src*="outbrain.com"]',
+    '[data-testid="ad-link"]',
+    '.main-leaderboard-ad',
+    '[aria-label="Advertisement"]'
   ];
 
   let blockedCountOnPage = 0;
@@ -355,12 +358,30 @@
       const mediaElements = document.querySelectorAll('audio, video');
 
       mediaElements.forEach((media) => {
-        if (isAd || media.src.includes('audio-fa') || media.src.includes('/ad/')) {
+        // Event listener enforcement so Spotify JS cannot un-mute or slow down playback during ads
+        if (!media.dataset.shieldblockTracked) {
+          media.dataset.shieldblockTracked = 'true';
+          media.addEventListener('ratechange', () => {
+            if (media.dataset.shieldblockAd === 'true' && media.playbackRate !== 16.0) {
+              media.playbackRate = 16.0;
+            }
+          });
+          media.addEventListener('volumechange', () => {
+            if (media.dataset.shieldblockAd === 'true' && !media.muted) {
+              media.muted = true;
+            }
+          });
+        }
+
+        if (isAd || media.src.includes('audio-fa') || media.src.includes('/ad/') || media.src.includes('spclient')) {
+          media.dataset.shieldblockAd = 'true';
           media.muted = true;
-          media.playbackRate = 16.0; // Fast-forward 2-min ad in ~2 seconds
+          media.playbackRate = 16.0; // Fast-forward 2-min ad in ~1-2 seconds
           if (isFinite(media.duration) && media.duration > 0 && media.currentTime < media.duration - 0.5) {
             media.currentTime = media.duration - 0.1; // Jump straight to end
           }
+        } else {
+          media.dataset.shieldblockAd = 'false';
         }
       });
 
