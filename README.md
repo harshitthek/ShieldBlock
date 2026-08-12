@@ -62,6 +62,19 @@ Beyond network blocking, ShieldBlock features an advanced **Cosmetic Filtering E
 
 ---
 
+## ⚡ Performance & RAM Optimization Architecture
+
+ShieldBlock is built with an aggressive low-footprint philosophy to ensure zero memory leaks and minimal CPU/battery impact:
+
+- **Combined Selector Queries**: Instead of running multiple individual `querySelectorAll` loops, ShieldBlock compiles CSS selectors into a single pass, drastically reducing JS-to-C++ DOM bridge crossings and V8 Heap Garbage Collection overhead.
+- **Tab Visibility Power Saver**: Listens to `visibilitychange` events (`document.hidden`). When a tab moves to the background, ShieldBlock automatically **disconnects DOM MutationObservers and pauses polling timers**, allowing background tabs to consume **0% CPU and zero extra RAM**.
+- **Spotify & YouTube Media Enforcement**: Event-level listeners (`ratechange`, `volumechange`) override website scripts that attempt to un-mute or slow down ad playback during video/audio ads.
+- **Rule ID Namespace Isolation**:
+  - Internal Rules (Allowlist / Global Toggle): IDs `1` .. `999,999`
+  - Custom Subscriptions: IDs `>= 1,000,000`
+
+---
+
 ## 📥 Installation Guide (Developer Mode)
 
 Because ShieldBlock is configured for high-performance developer mode with the `declarativeNetRequestFeedback` permission, install it as an **unpacked extension**:
