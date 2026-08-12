@@ -74,24 +74,24 @@
     }
   }
 
+  const COMBINED_AD_SELECTOR = AD_SELECTORS.join(', ');
+
   // Hide DOM ad elements matching known selectors
   function cleanAdElements() {
     let newlyFound = 0;
 
-    AD_SELECTORS.forEach((selector) => {
-      try {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach((el) => {
-          if (!el.classList.contains('shieldblock-hidden')) {
-            el.classList.add('shieldblock-hidden');
-            el.style.setProperty('display', 'none', 'important');
-            newlyFound++;
-          }
-        });
-      } catch (e) {
-        // invalid selector edge case
-      }
-    });
+    try {
+      const elements = document.querySelectorAll(COMBINED_AD_SELECTOR);
+      elements.forEach((el) => {
+        if (!el.classList.contains('shieldblock-hidden')) {
+          el.classList.add('shieldblock-hidden');
+          el.style.setProperty('display', 'none', 'important');
+          newlyFound++;
+        }
+      });
+    } catch (e) {
+      // invalid selector edge case
+    }
 
     // Check for Anti-Adblock modal traps (fixed translucent backdrops with no scroll)
     cleanAntiAdblockOverlays();
@@ -390,20 +390,17 @@
       }
 
       // Auto-click YouTube Skip Ad buttons (Modern & Classic)
-      const skipButtons = [
+      const skipButtonsSelector = [
         '.ytp-ad-skip-button',
         '.ytp-ad-skip-button-modern',
         '.ytp-skip-ad-button',
         'button.ytp-ad-skip-button-container',
         '.ytp-ad-overlay-close-button'
-      ];
+      ].join(', ');
 
-      for (const sel of skipButtons) {
-        const btn = document.querySelector(sel);
-        if (btn) {
-          btn.click();
-          break;
-        }
+      const btn = document.querySelector(skipButtonsSelector);
+      if (btn) {
+        btn.click();
       }
     }, 300);
   }
