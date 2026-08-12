@@ -1,0 +1,168 @@
+/* ShieldBlock - Cosmetic Filtering & Element Picker Styling */
+
+/* Hide standard ad containers silently without breaking document flow */
+.shieldblock-hidden,
+[data-ad-unit],
+[id*="google_ads_iframe"],
+[id*="div-gpt-ad"],
+.ad-container,
+.ad-wrapper,
+.ad-box,
+.ad-placement,
+.ad-banner,
+.adsbygoogle,
+.sponsored-post,
+.sponsored-card,
+[aria-label="Sponsored"],
+iframe[src*="doubleclick.net"],
+iframe[src*="googlesyndication.com"],
+iframe[src*="amazon-adsystem.com"],
+iframe[src*="taboola.com"],
+iframe[src*="outbrain.com"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Element Picker Overlay & Highlight Styles */
+#shieldblock-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483640;
+  pointer-events: none;
+}
+
+#shieldblock-picker-highlight {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid #3b82f6;
+  background-color: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  border-radius: 4px;
+  transition: all 0.05s ease-out;
+  z-index: 2147483641;
+}
+
+#shieldblock-picker-badge {
+  position: absolute;
+  top: -26px;
+  left: 0;
+  background: #1e293b;
+  color: #60a5fa;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #3b82f6;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal dialog for element block confirmation */
+#shieldblock-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 2147483645;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+#shieldblock-modal {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 440px;
+  color: #f8fafc;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  animation: shieldblockModalPop 0.2s ease-out;
+}
+
+@keyframes shieldblockModalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#shieldblock-modal h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#shieldblock-modal p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+#shieldblock-modal code {
+  display: block;
+  background: #1e293b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #a7f3d0;
+  word-break: break-all;
+  margin-bottom: 20px;
+  border: 1px solid #334155;
+}
+
+.shieldblock-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.shieldblock-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.shieldblock-btn-secondary {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+.shieldblock-btn-secondary:hover {
+  background: #475569;
+}
+
+.shieldblock-btn-primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.shieldblock-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}

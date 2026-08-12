@@ -1,0 +1,333 @@
+/**
+ * ShieldBlock - Cosmetic Filtering & Element Picker Content Script
+ */
+
+(function () {
+  'use me strict';
+
+  // Common Ad Selectors for Cosmetic Removal
+  const AD_SELECTORS = [
+    '.ad-container',
+    '.ad-wrapper',
+    '.ad-box',
+    '.ad-placement',
+    '.ad-banner',
+    '.adsbygoogle',
+    '.sponsored-post',
+    '.sponsored-card',
+    '[aria-label="Sponsored"]',
+    '[id*="google_ads_iframe"]',
+    '[id*="div-gpt-ad"]',
+    'iframe[src*="doubleclick.net"]',
+    'iframe[src*="googlesyndication.com"]',
+    'iframe[src*="amazon-adsystem.com"]',
+    'iframe[src*="taboola.com"]',
+    'iframe[src*="outbrain.com"]'
+  ];
+
+  let blockedCountOnPage = 0;
+
+  // Initialize Cosmetic Filtering
+  async function initCosmeticFilter() {
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'GET_STATUS' });
+      if (!response || !response.enabled || response.isWhitelisted) {
+        console.log('[ShieldBlock] Cosmetic filtering skipped (disabled or whitelisted)');
+        return;
+      }
+
+      // Run initial DOM cleanup
+      cleanAdElements();
+
+      // Debounced DOM cleanup to prevent CPU spikes on SPAs
+      let debouncedCleanTimer = null;
+      function debouncedCleanAdElements() {
+        if (debouncedCleanTimer) clearTimeout(debouncedCleanTimer);
+        debouncedCleanTimer = setTimeout(() => {
+          cleanAdElements();
+        }, 150);
+      }
+
+      // Observe dynamic changes (Single Page Applications, continuous scroll, infinite feeds)
+      const observer = new MutationObserver((mutations) => {
+        let shouldClean = false;
+        for (const m of mutations) {
+          if (m.addedNodes.length > 0) {
+            shouldClean = true;
+            break;
+          }
+        }
+        if (shouldClean) {
+          debouncedCleanAdElements();
+        }
+      });
+
+      if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          observer.observe(document.body, { childList: true, subtree: true });
+        });
+      }
+    } catch (e) {
+      console.warn('[ShieldBlock] Error initializing cosmetic filter:', e);
+    }
+  }
+
+  // Hide DOM ad elements matching known selectors
+  function cleanAdElements() {
+    let newlyFound = 0;
+
+    AD_SELECTORS.forEach((selector) => {
+      try {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach((el) => {
+          if (!el.classList.contains('shieldblock-hidden')) {
+            el.classList.add('shieldblock-hidden');
+            el.style.setProperty('display', 'none', 'important');
+            newlyFound++;
+          }
+        });
+      } catch (e) {
+        // invalid selector edge case
+      }
+    });
+
+    // Check for Anti-Adblock modal traps (fixed translucent backdrops with no scroll)
+    cleanAntiAdblockOverlays();
+
+    if (newlyFound > 0) {
+      blockedCountOnPage += newlyFound;
+      chrome.runtime.sendMessage({
+        action: 'INCREMENT_BLOCKED',
+        count: newlyFound
+      }).catch(() => {});
+    }
+  }
+
+  // Detect and remove intrusive anti-adblock full-screen paywalls/overlays
+  function cleanAntiAdblockOverlays() {
+    if (!document.body) return;
+    const overlays = document.querySelectorAll('div[class*="adblock"], div[id*="adblock"], div[class*="paywall"]');
+    overlays.forEach((el) => {
+      const style = window.getComputedStyle(el);
+      if (style.position === 'fixed' && parseInt(style.zIndex, 10) > 999) {
+        const text = el.innerText ? el.innerText.toLowerCase() : '';
+        if (text.includes('adblock') || text.includes('disable your ad blocker') || text.includes('turn off adblock')) {
+          el.remove();
+          document.body.style.setProperty('overflow', 'auto', 'important');
+          console.log('[ShieldBlock] Cleaned anti-adblock overlay');
+        }
+      }
+    });
+  }
+
+
+
+  let isPickerActive = false;
+  let pickerMode = 'permanent'; // 'permanent' or 'zap'
+  let hoveredElement = null;
+  let highlightBox = null;
+  let badgeEl = null;
+
+  function activateElementPicker(mode = 'permanent') {
+    if (isPickerActive) deactivateElementPicker();
+    isPickerActive = true;
+    pickerMode = mode;
+
+    // Create Highlight UI
+    highlightBox = document.createElement('div');
+    highlightBox.id = 'shieldblock-picker-highlight';
+
+    badgeEl = document.createElement('div');
+    badgeEl.id = 'shieldblock-picker-badge';
+    if (mode === 'zap') {
+      badgeEl.textContent = '⚡ ShieldBlock: Click element to Zap (press ESC to exit)';
+      badgeEl.style.background = '#be185d';
+      badgeEl.style.borderColor = '#f43f5e';
+      badgeEl.style.color = '#ffffff';
+      highlightBox.style.borderColor = '#ec4899';
+      highlightBox.style.backgroundColor = 'rgba(236, 72, 153, 0.2)';
+      highlightBox.style.boxShadow = '0 0 12px rgba(236, 72, 153, 0.5)';
+    } else {
+      badgeEl.textContent = '🛡️ ShieldBlock: Click element to block permanently';
+    }
+    highlightBox.appendChild(badgeEl);
+
+    document.documentElement.appendChild(highlightBox);
+
+    document.addEventListener('mouseover', handlePickerMouseOver, true);
+    document.addEventListener('click', handlePickerClick, true);
+    document.addEventListener('keydown', handlePickerKeyDown, true);
+  }
+
+  function deactivateElementPicker() {
+    isPickerActive = false;
+    if (highlightBox) {
+      highlightBox.remove();
+      highlightBox = null;
+    }
+    document.removeEventListener('mouseover', handlePickerMouseOver, true);
+    document.removeEventListener('click', handlePickerClick, true);
+    document.removeEventListener('keydown', handlePickerKeyDown, true);
+  }
+
+  function handlePickerMouseOver(e) {
+    if (!isPickerActive || e.target === highlightBox || highlightBox.contains(e.target)) return;
+    
+    // Ignore html / body tags
+    if (e.target === document.documentElement || e.target === document.body) return;
+
+    hoveredElement = e.target;
+    const rect = hoveredElement.getBoundingClientRect();
+
+    highlightBox.style.top = `${rect.top + window.scrollY}px`;
+    highlightBox.style.left = `${rect.left + window.scrollX}px`;
+    highlightBox.style.width = `${rect.width}px`;
+    highlightBox.style.height = `${rect.height}px`;
+    highlightBox.style.display = 'block';
+  }
+
+  function handlePickerClick(e) {
+    if (!isPickerActive || !hoveredElement) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const targetEl = hoveredElement;
+
+    if (pickerMode === 'zap') {
+      targetEl.remove();
+      highlightBox.style.display = 'none';
+      hoveredElement = null;
+    } else {
+      deactivateElementPicker();
+      const selector = generateUniqueCssSelector(targetEl);
+      showBlockConfirmationModal(targetEl, selector);
+    }
+  }
+
+  function handlePickerKeyDown(e) {
+    if (e.key === 'Escape') {
+      deactivateElementPicker();
+    }
+  }
+
+  // Generate robust, fully-qualified CSS selector for targeted element
+  function generateUniqueCssSelector(el) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return '';
+
+    // If element has a valid ID, return directly
+    if (el.id) {
+      return `#${CSS.escape(el.id)}`;
+    }
+
+    const path = [];
+    let current = el;
+
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const tag = current.tagName.toLowerCase();
+
+      if (tag === 'body' || tag === 'html') {
+        path.unshift(tag);
+        break;
+      }
+
+      if (current.id) {
+        path.unshift(`#${CSS.escape(current.id)}`);
+        break;
+      }
+
+      let selector = tag;
+      const parent = current.parentElement;
+
+      if (parent) {
+        const siblings = Array.from(parent.children).filter(c => c.tagName === current.tagName);
+        if (siblings.length > 1) {
+          const index = siblings.indexOf(current) + 1;
+          selector += `:nth-of-type(${index})`;
+        }
+      }
+
+      path.unshift(selector);
+      current = parent;
+    }
+
+    return path.join(' > ');
+  }
+
+  // Render Confirmation Modal safely without innerHTML
+  function showBlockConfirmationModal(targetEl, selector) {
+    const backdrop = document.createElement('div');
+    backdrop.id = 'shieldblock-modal-backdrop';
+
+    const modal = document.createElement('div');
+    modal.id = 'shieldblock-modal';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = '🛡️ Block Element';
+
+    const p = document.createElement('p');
+    p.textContent = `Do you want to permanently hide this element on `;
+    const strong = document.createElement('strong');
+    strong.textContent = window.location.hostname;
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode('?'));
+
+    const code = document.createElement('code');
+    code.textContent = selector;
+
+    const actions = document.createElement('div');
+    actions.className = 'shieldblock-modal-actions';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'shieldblock-btn shieldblock-btn-secondary';
+    cancelBtn.id = 'shieldblock-cancel-btn';
+    cancelBtn.textContent = 'Cancel';
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'shieldblock-btn shieldblock-btn-primary';
+    confirmBtn.id = 'shieldblock-confirm-btn';
+    confirmBtn.textContent = 'Hide Element';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+
+    modal.appendChild(h3);
+    modal.appendChild(p);
+    modal.appendChild(code);
+    modal.appendChild(actions);
+
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+
+    cancelBtn.onclick = () => backdrop.remove();
+
+    confirmBtn.onclick = async () => {
+      targetEl.style.setProperty('display', 'none', 'important');
+      backdrop.remove();
+
+      // Save rule to background storage (background worker injects via scripting API)
+      const domain = window.location.hostname.replace(/^www\./, '');
+      await chrome.runtime.sendMessage({
+        action: 'SAVE_ELEMENT_PICKER_RULE',
+        domain,
+        selector
+      });
+    };
+  }
+
+  // Listen for messages from Popup
+  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.action === 'ACTIVATE_ELEMENT_PICKER') {
+      activateElementPicker(msg.mode || 'permanent');
+      sendResponse({ success: true });
+    }
+  });
+
+  // Start extension cosmetic engine
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCosmeticFilter);
+  } else {
+    initCosmeticFilter();
+  }
+})();
