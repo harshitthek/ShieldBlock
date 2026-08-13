@@ -405,15 +405,9 @@
             media.playbackRate = 16.0;
           } catch (e) {}
           try {
-            if (media.duration && isFinite(media.duration) && media.duration > 0) {
+            if (media.duration && isFinite(media.duration) && media.duration > 0 && media.currentTime < media.duration - 0.2) {
               media.currentTime = media.duration - 0.1;
-            } else {
-              media.currentTime = 999999;
             }
-          } catch (e) {}
-          try {
-            // Dispatch synthetic ended event to force Spotify JS to advance to next track
-            media.dispatchEvent(new Event('ended', { bubbles: true }));
           } catch (e) {}
         } else {
           if (media.dataset.shieldblockAd === 'true') {
@@ -424,37 +418,6 @@
           }
         }
       });
-
-      // Auto-click Skip / Next button by invoking React internal handlers & keyboard shortcuts
-      if (isAdPlaying) {
-        const nextBtn = document.querySelector('[data-testid="control-button-skip-forward"]') ||
-                        document.querySelector('[aria-label="Next"]') ||
-                        document.querySelector('[aria-label="Skip"]') ||
-                        document.querySelector('button[aria-label*="Next" i]') ||
-                        document.querySelector('button[aria-label*="Skip" i]') ||
-                        document.querySelector('.spoticon-skip-forward-16');
-        if (nextBtn) {
-          // Direct React internal onClick handler invocation (bypasses React disabled state lock)
-          try {
-            const reactKey = Object.keys(nextBtn).find(k => k.startsWith('__reactProps') || k.startsWith('__reactEventHandlers'));
-            if (reactKey && nextBtn[reactKey] && typeof nextBtn[reactKey].onClick === 'function') {
-              nextBtn[reactKey].onClick({ preventDefault: () => {}, stopPropagation: () => {} });
-            }
-          } catch (e) {}
-
-          // DOM click fallback
-          nextBtn.disabled = false;
-          nextBtn.removeAttribute('disabled');
-          nextBtn.removeAttribute('aria-disabled');
-          nextBtn.click();
-        }
-
-        // Keyboard shortcut fallbacks (Shift + ArrowRight AND Alt + Shift + ArrowRight)
-        try {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, shiftKey: true, bubbles: true }));
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, shiftKey: true, altKey: true, bubbles: true }));
-        } catch (e) {}
-      }
     }, 200);
   }
 
