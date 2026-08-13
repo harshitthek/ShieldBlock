@@ -32,7 +32,7 @@ Beyond network blocking, ShieldBlock features an advanced **Cosmetic Filtering E
 | **📊 Real-time Network Logger** | Live streaming view of blocked requests, resource types, and rule IDs in a separate dashboard. |
 | **🌐 Remote Filter Subscriptions** | Subscribe to remote JSON filter lists with automatic rule namespace isolation (`ID >= 1,000,000`). |
 | **🔓 Anti-AdBlock Overlay Cleaner** | Detects and removes anti-adblock modal traps and restores page scrolling automatically. |
-| **🎵 Spotify Ad Acceleration** | Detects Spotify Web Player audio ads, mutes playback, accelerates to 16.0x speed, and auto-skips in 1-2s. |
+| **🎵 Spotify Ad Acceleration** | Bypasses DRM/MSE buffers using a Main World `window.Audio` proxy interceptor. Mutes and fast-forwards ads at 16x speed to organically skip in 1-2s. |
 | **▶️ YouTube Ad Acceleration** | Detects YouTube video ads, mutes audio, fast-forwards at 16.0x speed, and auto-clicks Skip Ad buttons instantly. |
 | **🎛️ Popup Mini Dashboard** | Quick Control Center right inside the toolbar popup to toggle filter lists (Ads, Trackers, Annoyances) in real-time. |
 | **🎨 Glassmorphic Dashboard** | Sleek UI with global toggle, stats counters, domain allowlist editor, and JSON configuration backup. |
@@ -57,7 +57,12 @@ Beyond network blocking, ShieldBlock features an advanced **Cosmetic Filtering E
   ┌────────┴────────┐        ┌────────┴────────┐        ┌────────┴────────┐
   │ Static Rulesets │        │ Storage & State │        │ MutationObserver│
   │ (Ads/Trackers)  │        │ (Local/Session) │        │ (150ms Debounce)│
-  └─────────────────┘        └─────────────────┘        └─────────────────┘
+  └─────────────────┘        └─────────────────┘        └─────────┬───────┘
+                                                                  ▼
+                                                        ┌─────────────────┐
+                                                        │ Main World Audio│
+                                                        │ Proxy Hook      │
+                                                        └─────────────────┘
 ```
 
 ---

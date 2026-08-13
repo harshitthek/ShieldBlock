@@ -14,15 +14,32 @@
 
     console.log('[ShieldBlock Main World] Spotify Engine Active');
 
-    setInterval(() => {
-      if (document.hidden) return;
+    // Intercept all media elements, even if not attached to the DOM
+    window.__shieldblock_media_elements = window.__shieldblock_media_elements || new Set();
 
+    const OriginalAudio = window.Audio;
+    window.Audio = function(...args) {
+      const audio = new OriginalAudio(...args);
+      window.__shieldblock_media_elements.add(audio);
+      return audio;
+    };
+
+    const originalCreateElement = document.createElement;
+    document.createElement = function(tagName, options) {
+      const el = originalCreateElement.call(document, tagName, options);
+      if (tagName && (tagName.toLowerCase() === 'audio' || tagName.toLowerCase() === 'video')) {
+        window.__shieldblock_media_elements.add(el);
+      }
+      return el;
+    };
+    setInterval(() => {
       const bodyText = document.body ? document.body.innerText || '' : '';
       const sidebar = document.querySelector('aside') || document.querySelector('[aria-label="Now playing view"]');
       const sidebarText = sidebar ? sidebar.innerText || '' : '';
 
       const isAd = Boolean(
-        /advertisement|your music will continue/i.test(bodyText) ||
+        /advertisement|your music will continue|left in the break|spotify\.com\/ad/i.test(bodyText) ||
+        /advertisement/i.test(document.title) ||
         document.querySelector('[data-testid="ad-title"]') ||
         document.querySelector('[data-testid="ad-badge"]') ||
         document.querySelector('[aria-label*="Advertisement" i]') ||
@@ -38,18 +55,29 @@
         sidebar.style.removeProperty('display');
       }
 
-      // Control audio & video elements in Main World
-      const audios = document.querySelectorAll('audio, video');
-      audios.forEach((media) => {
+      // Control audio & video elements in Main World (DOM + Off-DOM)
+      const domAudios = Array.from(document.querySelectorAll('audio, video'));
+      const allAudios = new Set([...domAudios, ...window.__shieldblock_media_elements]);
+      
+      allAudios.forEach((media) => {
+        // Enforce 16x speed instantly on media events to bypass setInterval throttling
+        if (!media.dataset.shieldblockHooked) {
+          media.dataset.shieldblockHooked = 'true';
+          const enforceSkip = () => {
+             if (media.dataset.shieldblockAd === 'true') {
+                 try { if (media.playbackRate !== 16.0) media.playbackRate = 16.0; } catch(e){}
+                 if (!media.muted) media.muted = true;
+             }
+          };
+          media.addEventListener('timeupdate', enforceSkip);
+          media.addEventListener('play', enforceSkip);
+        }
+
         if (isAd) {
+          media.dataset.shieldblockAd = 'true';
           media.muted = true;
           media.volume = 0;
           try { media.playbackRate = 16.0; } catch (e) {}
-          try {
-            if (media.duration && isFinite(media.duration) && media.duration > 0 && media.currentTime < media.duration - 0.2) {
-              media.currentTime = media.duration - 0.1;
-            }
-          } catch (e) {}
         } else if (media.dataset.shieldblockAd === 'true' || (media.muted && media.volume === 0)) {
           media.dataset.shieldblockAd = 'false';
           media.muted = false;
