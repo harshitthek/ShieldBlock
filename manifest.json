@@ -40,6 +40,12 @@
       "js": ["injected_skipper.js"],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": ["*://*.spotify.com/*"],
+      "js": ["ws_hook.js", "ads_removal.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "declarative_net_request": {
