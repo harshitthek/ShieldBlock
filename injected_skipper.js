@@ -34,12 +34,16 @@
     };
     setInterval(() => {
       const titleText = document.title || '';
+      const playerBar = document.querySelector('[data-testid="now-playing-widget"]') || document.querySelector('footer');
+      const playerText = playerBar ? playerBar.innerText || '' : '';
+
       const isAd = Boolean(
         /advertisement/i.test(titleText) ||
+        (playerText && /advertisement|your music will continue|left in the break/i.test(playerText)) ||
         document.querySelector('[data-testid="ad-title"]') ||
         document.querySelector('[data-testid="ad-badge"]') ||
         document.querySelector('a[data-testid="track-info-advertiser"]') ||
-        document.querySelector('a[href*="spotify.com/ad"]')
+        document.querySelector('a[href*="spotify.com/ads"]') // Fixed false positive from "spotify.com/add"
       );
 
       // Hide sidebar ad card if ad is playing
