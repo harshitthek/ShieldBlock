@@ -34,18 +34,12 @@
     };
     setInterval(() => {
       const titleText = document.title || '';
-      const playerBar = document.querySelector('[data-testid="now-playing-widget"]') || document.querySelector('footer');
-      const playerText = playerBar ? playerBar.innerText || '' : '';
-
-      const isVisible = (el) => el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-
       const isAd = Boolean(
         /advertisement/i.test(titleText) ||
-        /advertisement|your music will continue|left in the break|spotify\.com\/ad/i.test(playerText) ||
-        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-title"]')) ||
-        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-badge"]')) ||
-        isVisible(playerBar && playerBar.querySelector('[aria-label*="Advertisement" i]')) ||
-        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-link"]'))
+        document.querySelector('[data-testid="ad-title"]') ||
+        document.querySelector('[data-testid="ad-badge"]') ||
+        document.querySelector('a[data-testid="track-info-advertiser"]') ||
+        document.querySelector('a[href*="spotify.com/ad"]')
       );
 
       // Hide sidebar ad card if ad is playing
