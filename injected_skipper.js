@@ -33,19 +33,17 @@
       return el;
     };
     setInterval(() => {
-      const bodyText = document.body ? document.body.innerText || '' : '';
-      const sidebar = document.querySelector('aside') || document.querySelector('[aria-label="Now playing view"]');
-      const sidebarText = sidebar ? sidebar.innerText || '' : '';
+      const titleText = document.title || '';
+      const playerBar = document.querySelector('[data-testid="now-playing-widget"]') || document.querySelector('footer');
+      const playerText = playerBar ? playerBar.innerText || '' : '';
 
       const isAd = Boolean(
-        /advertisement|your music will continue|left in the break|spotify\.com\/ad/i.test(bodyText) ||
-        /advertisement/i.test(document.title) ||
-        document.querySelector('[data-testid="ad-title"]') ||
-        document.querySelector('[data-testid="ad-badge"]') ||
-        document.querySelector('[aria-label*="Advertisement" i]') ||
-        document.querySelector('[data-testid="ad-link"]') ||
-        document.querySelector('.sponsor-container') ||
-        document.querySelector('a[href*="spotify.com/ad"]')
+        /advertisement/i.test(titleText) ||
+        /advertisement|your music will continue|left in the break|spotify\.com\/ad/i.test(playerText) ||
+        (playerBar && playerBar.querySelector('[data-testid="ad-title"]')) ||
+        (playerBar && playerBar.querySelector('[data-testid="ad-badge"]')) ||
+        (playerBar && playerBar.querySelector('[aria-label*="Advertisement" i]')) ||
+        (playerBar && playerBar.querySelector('[data-testid="ad-link"]'))
       );
 
       // Hide sidebar ad card if ad is playing
