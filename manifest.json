@@ -34,6 +34,12 @@
       "css": ["content.css"],
       "js": ["content.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.spotify.com/*", "*://*.youtube.com/*"],
+      "js": ["injected_skipper.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "declarative_net_request": {
