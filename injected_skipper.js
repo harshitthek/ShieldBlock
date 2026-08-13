@@ -22,7 +22,7 @@
       const sidebarText = sidebar ? sidebar.innerText || '' : '';
 
       const isAd = Boolean(
-        /advertisement •|advertisement \d|your music will continue after/i.test(bodyText) ||
+        /advertisement|your music will continue/i.test(bodyText) ||
         document.querySelector('[data-testid="ad-title"]') ||
         document.querySelector('[data-testid="ad-badge"]') ||
         document.querySelector('[aria-label*="Advertisement" i]') ||
