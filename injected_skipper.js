@@ -37,13 +37,15 @@
       const playerBar = document.querySelector('[data-testid="now-playing-widget"]') || document.querySelector('footer');
       const playerText = playerBar ? playerBar.innerText || '' : '';
 
+      const isVisible = (el) => el && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+
       const isAd = Boolean(
         /advertisement/i.test(titleText) ||
         /advertisement|your music will continue|left in the break|spotify\.com\/ad/i.test(playerText) ||
-        (playerBar && playerBar.querySelector('[data-testid="ad-title"]')) ||
-        (playerBar && playerBar.querySelector('[data-testid="ad-badge"]')) ||
-        (playerBar && playerBar.querySelector('[aria-label*="Advertisement" i]')) ||
-        (playerBar && playerBar.querySelector('[data-testid="ad-link"]'))
+        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-title"]')) ||
+        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-badge"]')) ||
+        isVisible(playerBar && playerBar.querySelector('[aria-label*="Advertisement" i]')) ||
+        isVisible(playerBar && playerBar.querySelector('[data-testid="ad-link"]'))
       );
 
       // Hide sidebar ad card if ad is playing
